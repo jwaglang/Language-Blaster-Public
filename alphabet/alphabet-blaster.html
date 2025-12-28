@@ -1,0 +1,2304 @@
+<!--
+  Language Blaster - Alphabet Blaster
+  © 2024-2026 kiddoland.co. All rights reserved.
+  Unauthorized copying, modification, or distribution is prohibited.
+  License: https://github.com/jwaglang/Language-Blaster-Public/blob/main/terms.html
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🚀 Alphabet Blaster! 🚀</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bangers&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-yellow: #ffff00;
+            --neon-green: #00ff00;
+            --neon-orange: #ff6600;
+            --deep-space: #0a0a1a;
+        }
+        
+        body {
+            background: var(--deep-space);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+            touch-action: none;
+        }
+        
+        .crt-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+        }
+        
+        .starfield {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+        }
+        
+        .bg-star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        /* Shooting stars */
+        .shooting-star {
+            position: absolute;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #fffacd);
+            opacity: 0.5;
+            transform: rotate(135deg);
+            animation: shootingStar 1.2s linear forwards;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes shootingStar {
+            0% {
+                transform: rotate(135deg) translateX(0);
+                opacity: 0.6;
+            }
+            70% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: rotate(135deg) translateX(400px);
+                opacity: 0;
+            }
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 900px;
+            height: 100vh;
+            max-height: 700px;
+            background: linear-gradient(180deg, #1a0a2e 0%, #0a0a1a 50%, #1a0a2e 100%);
+            border: 8px solid #fffacd;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px var(--neon-pink), 0 0 60px var(--neon-cyan), inset 0 0 100px rgba(107,0,179,0.3);
+            cursor: crosshair;
+        }
+        
+        /* Screens */
+        .screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background: radial-gradient(ellipse at center, #2a1a4e 0%, #0a0a1a 70%);
+            cursor: default;
+        }
+        
+        .screen.hidden { display: none; }
+        
+        .game-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(1.1rem, 3.5vw, 1.8rem);
+            color: var(--neon-yellow);
+            text-shadow: 0 0 10px var(--neon-yellow), 0 0 20px var(--neon-orange), 0 0 40px var(--neon-orange), 3px 3px 0 var(--neon-pink);
+            animation: titlePulse 1.5s infinite ease-in-out;
+            text-align: center;
+            letter-spacing: 1px;
+            line-height: 1.4;
+            padding: 10px 25px;
+            margin: 0;
+        }
+        
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .subtitle {
+            font-size: clamp(0.5rem, 1.5vw, 0.8rem);
+            color: var(--neon-cyan);
+            margin-top: 15px;
+            text-shadow: 0 0 10px var(--neon-cyan);
+            animation: blink 1s infinite;
+        }
+        
+        .level-select-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .level-select-label {
+            font-size: clamp(0.4rem, 1.2vw, 0.6rem);
+            color: var(--neon-cyan);
+        }
+        
+        .level-select {
+            background: rgba(0,0,0,0.7);
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.4rem, 1.2vw, 0.6rem);
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        
+        .level-select:focus {
+            outline: none;
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 10px var(--neon-yellow);
+        }
+        
+        .level-select option {
+            background: #1a0a2e;
+            color: var(--neon-cyan);
+        }
+        
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.3; }
+        }
+        
+        .btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.6rem, 2vw, 0.9rem);
+            border: 4px solid var(--neon-yellow);
+            color: #000;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        
+        .btn-green {
+            background: linear-gradient(180deg, var(--neon-green) 0%, #00aa00 100%);
+            box-shadow: 0 6px 0 #006600, 0 0 20px var(--neon-green);
+        }
+        
+        .btn-cyan {
+            background: linear-gradient(180deg, var(--neon-cyan) 0%, #0088aa 100%);
+            box-shadow: 0 6px 0 #005566, 0 0 20px var(--neon-cyan);
+        }
+        
+        .btn-pink {
+            background: linear-gradient(180deg, var(--neon-pink) 0%, #aa00aa 100%);
+            box-shadow: 0 6px 0 #660066, 0 0 20px var(--neon-pink);
+            color: white;
+        }
+        
+        .btn-orange {
+            background: linear-gradient(180deg, var(--neon-orange) 0%, #aa4400 100%);
+            box-shadow: 0 6px 0 #663300, 0 0 20px var(--neon-orange);
+        }
+        
+        .btn-small {
+            padding: 10px 20px;
+            font-size: clamp(0.4rem, 1.2vw, 0.6rem);
+            margin: 10px;
+        }
+        
+        .btn:hover { transform: translateY(2px); }
+        .btn:active { transform: translateY(6px); }
+        
+        /* Username Input */
+        .username-input {
+            background: rgba(0,0,0,0.5);
+            border: 3px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.6rem, 2vw, 1rem);
+            padding: 15px 20px;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+            margin: 20px 0;
+        }
+        
+        .username-input:focus {
+            outline: none;
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 20px var(--neon-yellow);
+        }
+        
+        /* HUD */
+        .hud {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            z-index: 50;
+        }
+        
+        .hud-item {
+            font-size: clamp(0.35rem, 1.1vw, 0.55rem);
+            color: var(--neon-yellow);
+            text-shadow: 0 0 10px var(--neon-yellow);
+        }
+        
+        .hud-item.cyan { color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
+        
+        .lives-display { display: flex; gap: 3px; }
+        .life-icon {
+            font-size: clamp(0.8rem, 2vw, 1.2rem);
+            filter: drop-shadow(0 0 5px var(--neon-pink));
+        }
+        
+        .pause-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.4rem, 1vw, 0.5rem);
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        
+        .pause-btn:hover { background: rgba(0,255,255,0.2); }
+        
+        /* Target Area */
+        .target-area {
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 40;
+        }
+        
+        .target-label {
+            font-size: clamp(0.35rem, 1vw, 0.5rem);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+            margin-bottom: 5px;
+        }
+        
+        .target-letter {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            color: var(--neon-yellow);
+            text-shadow: 0 0 20px var(--neon-yellow), 0 0 40px var(--neon-orange), 4px 4px 0 var(--neon-pink);
+            animation: targetGlow 0.5s infinite alternate;
+            min-height: 1.2em;
+            text-transform: none !important;
+        }
+        
+        .target-letter.hidden-letter {
+            color: transparent;
+            text-shadow: none;
+        }
+        
+        .target-letter.hidden-letter::after {
+            content: '?';
+            color: var(--neon-pink);
+            text-shadow: 0 0 20px var(--neon-pink);
+        }
+        
+        @keyframes targetGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.3); }
+        }
+        
+        .speak-btn {
+            margin-top: 8px;
+            padding: 6px 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.3rem, 0.8vw, 0.4rem);
+            background: var(--neon-pink);
+            border: 2px solid var(--neon-cyan);
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+        
+        /* Game Area */
+        .game-area {
+            position: absolute;
+            top: 150px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 220px);
+            overflow: hidden;
+        }
+        
+        .floating-letter, .floating-word {
+            position: absolute;
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2.2rem, 6vw, 3.5rem);
+            user-select: none;
+            pointer-events: none;
+            text-transform: none !important;
+        }
+        
+        .floating-word {
+            font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+            letter-spacing: 2px;
+            text-transform: none !important;
+        }
+        
+        .floating-letter.hit, .floating-word.hit {
+            animation: letterHit 0.3s ease-out forwards;
+        }
+        
+        @keyframes letterHit {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        /* Meteorite */
+        .meteorite {
+            position: absolute;
+            font-size: clamp(2rem, 5vw, 3rem);
+            user-select: none;
+            pointer-events: auto;
+            cursor: crosshair;
+            filter: drop-shadow(0 0 10px #888);
+            animation: meteorSpin 2s linear infinite;
+        }
+        
+        @keyframes meteorSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Challenge Modal */
+        .challenge-modal {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 85;
+            padding: 20px;
+        }
+        
+        .challenge-modal.hidden { display: none; }
+        
+        .challenge-title {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--neon-orange);
+            text-shadow: 0 0 20px var(--neon-orange);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .challenge-question {
+            font-size: clamp(0.5rem, 1.5vw, 0.8rem);
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            max-width: 90%;
+            line-height: 1.6;
+        }
+        
+        .challenge-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .challenge-option {
+            background: rgba(0,0,0,0.5);
+            border: 3px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.4rem, 1.2vw, 0.6rem);
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .challenge-option:hover {
+            background: rgba(0,255,255,0.2);
+            border-color: var(--neon-yellow);
+            color: var(--neon-yellow);
+        }
+        
+        .challenge-option.correct {
+            background: rgba(0,255,0,0.3);
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+        
+        .challenge-option.wrong {
+            background: rgba(255,0,0,0.3);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        
+        .challenge-option.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        
+        .challenge-result {
+            font-size: clamp(0.5rem, 1.5vw, 0.7rem);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .challenge-result.correct { color: var(--neon-green); }
+        .challenge-result.wrong { color: #ff4444; }
+        .challenge-result.hidden { display: none; }
+        
+        .challenge-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .double-down-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--neon-pink);
+            text-align: center;
+        }
+        
+        .double-down-text {
+            font-size: clamp(0.4rem, 1.2vw, 0.6rem);
+            color: var(--neon-orange);
+            margin-bottom: 15px;
+        }
+        
+        /* Dictation Mode */
+        .dictation-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 40;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .dictation-area.hidden { display: none; }
+        
+        .dictation-prompt {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(3rem, 10vw, 5rem);
+            color: var(--neon-yellow);
+            text-shadow: 0 0 20px var(--neon-yellow);
+            margin-bottom: 30px;
+            min-height: 1.2em;
+        }
+        
+        .dictation-input {
+            background: rgba(0,0,0,0.5);
+            border: 3px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.8rem, 2vw, 1.2rem);
+            padding: 15px 25px;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 20px;
+            text-transform: lowercase;
+        }
+        
+        .dictation-input:focus {
+            outline: none;
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 20px var(--neon-yellow);
+        }
+        
+        .dictation-hint {
+            font-size: clamp(0.35rem, 1vw, 0.5rem);
+            color: var(--neon-pink);
+            margin-bottom: 15px;
+        }
+        
+        /* Spaceship */
+        .spaceship {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(2rem, 6vw, 3rem);
+            filter: drop-shadow(0 0 20px var(--neon-cyan));
+            z-index: 30;
+            pointer-events: none;
+        }
+        
+        .spaceship.shooting { animation: shipRecoil 0.1s ease-out; }
+        
+        @keyframes shipRecoil {
+            0% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(5px); }
+            100% { transform: translateX(-50%) translateY(0); }
+        }
+        
+        /* Laser */
+        .laser {
+            position: absolute;
+            width: 8px;
+            height: 50px;
+            background: linear-gradient(180deg, var(--neon-green), var(--neon-cyan), transparent);
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+            z-index: 25;
+            pointer-events: none;
+        }
+        
+        /* Explosion */
+        .explosion {
+            position: absolute;
+            font-size: 2.5rem;
+            animation: explode 0.5s ease-out forwards;
+            z-index: 60;
+            pointer-events: none;
+        }
+        
+        @keyframes explode {
+            0% { transform: scale(0.5); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        /* Feedback */
+        .feedback {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Bangers', cursive;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            text-align: center;
+            z-index: 70;
+            animation: feedbackPop 1s ease-out forwards;
+            pointer-events: none;
+        }
+        
+        .feedback.great { color: var(--neon-green); text-shadow: 0 0 20px var(--neon-green), 4px 4px 0 #006600; }
+        .feedback.oops { color: var(--neon-orange); text-shadow: 0 0 20px var(--neon-orange), 4px 4px 0 #993300; }
+        
+        @keyframes feedbackPop {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+            60% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+        
+        /* Stars */
+        .stars-earned { margin: 20px 0; font-size: clamp(1.5rem, 5vw, 3rem); }
+        
+        .stars-earned .star {
+            display: inline-block;
+            animation: starPop 0.5s ease-out forwards;
+            opacity: 0;
+            filter: drop-shadow(0 0 10px var(--neon-yellow));
+        }
+        
+        @keyframes starPop {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+        
+        /* Screen specific */
+        .level-intro {
+            font-size: clamp(0.4rem, 1.2vw, 0.6rem);
+            color: var(--neon-cyan);
+            margin: 15px 0;
+            text-align: center;
+            max-width: 85%;
+            line-height: 1.8;
+        }
+        
+        .final-score {
+            font-size: clamp(0.5rem, 1.5vw, 0.8rem);
+            color: var(--neon-yellow);
+            margin-top: 15px;
+            text-shadow: 0 0 10px var(--neon-yellow);
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 10px;
+            max-width: 85%;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 5px 10px;
+            align-items: center;
+        }
+        
+        .instructions .level-icon {
+            font-size: clamp(0.5rem, 1.2vw, 0.7rem);
+            text-align: center;
+        }
+        
+        .instructions .level-text {
+            font-size: clamp(0.35rem, 1vw, 0.5rem);
+            color: white;
+            text-align: left;
+        }
+        
+        .shoot-hint {
+            position: absolute;
+            bottom: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(0.35rem, 1vw, 0.5rem);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            animation: blink 1s infinite;
+            z-index: 35;
+            pointer-events: none;
+        }
+        
+        /* Scoreboard */
+        .scoreboard {
+            max-height: 200px;
+            overflow-y: auto;
+            width: 90%;
+            max-width: 400px;
+            margin: 15px 0;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--neon-pink);
+            border-radius: 8px;
+        }
+        
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 15px;
+            font-size: clamp(0.35rem, 1vw, 0.5rem);
+            color: white;
+            border-bottom: 1px solid rgba(255,0,255,0.3);
+        }
+        
+        .score-row:last-child { border-bottom: none; }
+        .score-row.header { color: var(--neon-yellow); font-weight: bold; }
+        .score-row.current-user { color: var(--neon-green); }
+        
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .player-welcome {
+            font-size: clamp(0.4rem, 1.2vw, 0.6rem);
+            color: var(--neon-green);
+            margin: 10px 0;
+        }
+        
+        .stats-container {
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            width: 90%;
+            max-width: 350px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(0.35rem, 1vw, 0.5rem);
+            color: white;
+            padding: 5px 0;
+        }
+        
+        .stat-value { color: var(--neon-yellow); }
+        
+        /* Pause overlay */
+        .pause-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 80;
+        }
+        
+        .pause-overlay.hidden { display: none; }
+        
+        .pause-title {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2rem, 6vw, 4rem);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 20px var(--neon-cyan);
+            animation: titlePulse 1.5s infinite;
+        }
+        
+        /* Music toggle */
+        .music-toggle {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid var(--neon-pink);
+            color: var(--neon-pink);
+            font-size: 1.2rem;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 60;
+        }
+        
+        .music-toggle:hover { background: rgba(255,0,255,0.2); }
+        
+        @media (max-width: 600px) {
+            .game-container { border-width: 4px; max-height: 100vh; }
+            .hud { padding: 8px 10px; }
+            .target-area { top: 48px; }
+            .game-area { top: 130px; height: calc(100% - 195px); }
+            .spaceship { bottom: 18px; }
+            .shoot-hint { bottom: 60px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="crt-overlay"></div>
+    <div class="starfield" id="starfield"></div>
+    
+    <div class="game-container" id="gameContainer">
+        <!-- Login Screen -->
+        <div class="screen" id="loginScreen">
+            <h1 class="game-title">🚀 ALPHABET BLASTER! 🚀</h1>
+            <p class="subtitle">ENTER YOUR NAME</p>
+            <input type="text" class="username-input" id="usernameInput" placeholder="Your name..." maxlength="12">
+            <button class="btn btn-green" id="loginBtn">START</button>
+            <div class="btn-row">
+                <button class="btn btn-small btn-cyan" id="viewScoresBtn">🏆 SCORES</button>
+                <button class="btn btn-small btn-orange" id="importBtn">📥 IMPORT</button>
+            </div>
+            <input type="file" id="importFile" accept=".json" style="display:none">
+        </div>
+        
+        <!-- Title Screen -->
+        <div class="screen hidden" id="titleScreen">
+            <h1 class="game-title">🚀 ALPHABET BLASTER! 🚀</h1>
+            <p class="player-welcome">Welcome, <span id="playerName">Player</span>!</p>
+            <div class="level-select-row">
+                <label for="levelSelect" class="level-select-label">START AT:</label>
+                <select id="levelSelect" class="level-select">
+                    <option value="1">Level 1</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                    <option value="5">Level 5</option>
+                </select>
+            </div>
+            <button class="btn btn-green" id="startBtn">PLAY</button>
+            <div class="btn-row">
+                <button class="btn btn-small btn-cyan" id="statsBtn">📊 MY STATS</button>
+                <button class="btn btn-small btn-pink" id="scoresBtn">🏆 SCOREBOARD</button>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-small btn-orange" id="exportBtn">📤 EXPORT</button>
+                <button class="btn btn-small btn-cyan" id="changeUserBtn">👤 CHANGE</button>
+            </div>
+            <div class="instructions">
+                <span class="level-icon">🔊</span><span class="level-text">Level 1: See & hear letters</span>
+                <span class="level-icon">👂</span><span class="level-text">Level 2: Listen only letters</span>
+                <span class="level-icon">📝</span><span class="level-text">Level 3: See & hear words</span>
+                <span class="level-icon">🎧</span><span class="level-text">Level 4: Listen only words</span>
+                <span class="level-icon">✍️</span><span class="level-text">Level 5: Spell the word</span>
+            </div>
+        </div>
+        
+        <!-- Stats Screen -->
+        <div class="screen hidden" id="statsScreen">
+            <h2 style="color: var(--neon-cyan); font-size: clamp(1rem, 3vw, 1.5rem);">📊 YOUR STATS</h2>
+            <p class="player-welcome" id="statsPlayerName">Player</p>
+            <div class="stats-container" id="statsContainer"></div>
+            <button class="btn btn-cyan" id="statsBackBtn">BACK</button>
+        </div>
+        
+        <!-- Scoreboard Screen -->
+        <div class="screen hidden" id="scoreboardScreen">
+            <h2 style="color: var(--neon-yellow); font-size: clamp(1rem, 3vw, 1.5rem);">🏆 TOP SCORES</h2>
+            <div class="scoreboard" id="scoreboardList"></div>
+            <button class="btn btn-cyan" id="scoreboardBackBtn">BACK</button>
+        </div>
+        
+        <!-- HUD -->
+        <div class="hud">
+            <div class="hud-item">SCORE: <span id="score">0</span></div>
+            <div class="lives-display" id="livesDisplay"></div>
+            <div class="hud-item cyan" id="modeDisplay">LEVEL 1</div>
+            <div class="hud-item">RND: <span id="round">1</span></div>
+            <button class="pause-btn" id="pauseBtn">❚❚</button>
+        </div>
+        
+        <!-- Music Toggle -->
+        <button class="music-toggle" id="musicToggle">🔊</button>
+        
+        <!-- Target Area -->
+        <div class="target-area">
+            <div class="target-label" id="targetLabel">🎯 SHOOT THIS LETTER 🎯</div>
+            <div class="target-letter" id="targetLetter">A</div>
+            <button class="speak-btn" id="speakBtn">🔊 HEAR IT</button>
+        </div>
+        
+        <!-- Game Area -->
+        <div class="game-area" id="gameArea"></div>
+        <div class="shoot-hint" id="shootHint">TAP TO SHOOT! 🔫</div>
+        <div class="spaceship" id="spaceship">🚀</div>
+        
+        <!-- Dictation Area (Level 5) -->
+        <div class="dictation-area hidden" id="dictationArea">
+            <div class="dictation-prompt" id="dictationPrompt">CAT</div>
+            <input type="text" class="dictation-input" id="dictationInput" placeholder="Type the word...">
+            <p class="dictation-hint">Listen and spell the word!</p>
+            <div class="btn-row">
+                <button class="btn btn-green btn-small" id="dictationSubmitBtn">SUBMIT</button>
+                <button class="btn btn-orange btn-small" id="beatsMeBtn">BEATS ME!</button>
+            </div>
+        </div>
+        
+        <!-- Challenge Modal (Meteorite) -->
+        <div class="challenge-modal hidden" id="challengeModal">
+            <h2 class="challenge-title">☄️ METEORITE CHALLENGE! ☄️</h2>
+            <p class="challenge-question" id="challengeQuestion">Question goes here</p>
+            <div class="challenge-options" id="challengeOptions">
+                <!-- Options will be inserted here -->
+            </div>
+            <p class="challenge-result hidden" id="challengeResult"></p>
+            <div class="double-down-section hidden" id="doubleDownSection">
+                <p class="double-down-text">Wrong! Choose your fate:</p>
+                <div class="challenge-buttons">
+                    <button class="btn btn-cyan btn-small" id="returnBtn">RETURN (safe)</button>
+                    <button class="btn btn-orange btn-small" id="doubleDownBtn">GOIN' FOR IT! 🔥</button>
+                </div>
+            </div>
+            <button class="btn btn-cyan btn-small hidden" id="challengeContinueBtn">CONTINUE</button>
+        </div>
+        
+        <!-- Pause Overlay -->
+        <div class="pause-overlay hidden" id="pauseOverlay">
+            <h2 class="pause-title">⏸️ PAUSED</h2>
+            <button class="btn btn-green" id="resumeBtn">▶ RESUME</button>
+            <button class="btn btn-orange" id="quitBtn">✖ QUIT</button>
+        </div>
+        
+        <!-- Level Complete Screen -->
+        <div class="screen hidden" id="levelComplete">
+            <h2 style="color: var(--neon-yellow); font-size: clamp(1.5rem, 4vw, 2.5rem);" id="levelCompleteTitle">🎉 AWESOME! 🎉</h2>
+            <p style="color: var(--neon-cyan); font-size: 0.7rem;" id="levelCompleteText">Level Complete!</p>
+            <div class="level-intro" id="nextLevelIntro"></div>
+            <div class="stars-earned" id="starsEarned"></div>
+            <button class="btn btn-cyan" id="continueBtn">CONTINUE</button>
+        </div>
+        
+        <!-- Game Complete Screen -->
+        <div class="screen hidden" id="gameComplete">
+            <h2 style="color: var(--neon-yellow); font-size: clamp(1.5rem, 4vw, 2.5rem);">🏆 YOU WIN! 🏆</h2>
+            <p style="color: var(--neon-cyan); font-size: 0.7rem;">All Levels Complete!</p>
+            <p class="final-score">SCORE: <span id="winScore">0</span></p>
+            <div class="stars-earned" id="winStars"></div>
+            <button class="btn btn-green" id="playAgainBtn">PLAY AGAIN</button>
+            <button class="btn btn-small btn-cyan" id="winMenuBtn">MENU</button>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div class="screen hidden" id="gameOver">
+            <h2 style="color: var(--neon-pink); font-size: clamp(1.5rem, 4vw, 2.5rem);">GAME OVER</h2>
+            <p class="final-score">SCORE: <span id="finalScore">0</span></p>
+            <p style="color: var(--neon-cyan); font-size: 0.5rem; margin-top: 10px;">Great effort!</p>
+            <button class="btn btn-green" id="retryBtn">TRY AGAIN</button>
+            <button class="btn btn-small btn-cyan" id="gameOverMenuBtn">MENU</button>
+        </div>
+    </div>
+    
+    <script>
+        // CVC words in Proper Case (removed problematic words for speech)
+        const CVC_WORDS = [
+            'Cat', 'Bat', 'Hat', 'Rat', 'Mat', 'Pat', 'Fat', 'Tap', 'Nap', 'Cap',
+            'Dog', 'Log', 'Hog', 'Fog', 'Jog', 'Cob', 'Rob', 'Job', 'Mob', 'Bob',
+            'Pig', 'Big', 'Dig', 'Fig', 'Wig', 'Jig', 'Rip', 'Tip', 'Dip', 'Hip',
+            'Bug', 'Hug', 'Mug', 'Rug', 'Tug', 'Jug', 'Cub', 'Rub', 'Tub', 'Sub',
+            'Bed', 'Red', 'Web', 'Peg', 'Leg', 'Beg', 'Jet', 'Pet', 'Wet', 'Net',
+            'Cup', 'Pup', 'Hut', 'Mud', 'Bud', 'Dug',
+            'Sun', 'Run', 'Fun', 'Bun', 'Bus', 'Gum',
+            'Pen', 'Hen', 'Ten', 'Men', 'Den', 'Pep',
+            'Top', 'Hop', 'Mop', 'Pop', 'Cop', 'Pot', 'Dot', 'Hot', 'Cot', 'Got',
+            'Sit', 'Hit', 'Bit', 'Fit', 'Kit', 'Pit', 'Pin', 'Win', 'Fin', 'Bin'
+        ];
+        
+        // Challenge questions for meteorites (multiple choice)
+        const CHALLENGE_QUESTIONS = [
+            {q: "How many vowels are in English?", options: ["3", "5", "6", "7"], a: "5"},
+            {q: "Which letter is NOT a vowel?", options: ["A", "E", "B", "I"], a: "B"},
+            {q: "What sound does 'ph' make?", options: ["/p/", "/f/", "/h/", "/b/"], a: "/f/"},
+            {q: "Which word rhymes with 'cat'?", options: ["Dog", "Bat", "Cup", "Pen"], a: "Bat"},
+            {q: "What is the first letter of the alphabet?", options: ["B", "Z", "A", "C"], a: "A"},
+            {q: "Which is a consonant?", options: ["A", "E", "T", "I"], a: "T"},
+            {q: "How many letters in the alphabet?", options: ["24", "25", "26", "27"], a: "26"},
+            {q: "What comes after M?", options: ["L", "N", "O", "K"], a: "N"},
+            {q: "Which word starts with a vowel?", options: ["Cat", "Dog", "Apple", "Ball"], a: "Apple"},
+            {q: "What sound does 'sh' make?", options: ["/s/", "/sh/", "/ch/", "/h/"], a: "/sh/"},
+            {q: "Which letter is silent in 'knight'?", options: ["n", "i", "k", "t"], a: "k"},
+            {q: "What rhymes with 'dog'?", options: ["Cat", "Log", "Pig", "Bed"], a: "Log"},
+            {q: "Which is the last vowel?", options: ["A", "E", "U", "Y"], a: "U"},
+            {q: "What letter does 'queen' start with?", options: ["K", "Q", "C", "W"], a: "Q"},
+            {q: "How many syllables in 'cat'?", options: ["1", "2", "3", "0"], a: "1"}
+        ];
+        
+        // Difficulty settings per level - MUCH harder progression!
+        const LEVEL_CONFIG = {
+            1: { speed: 12000, spawnRate: 3000, targets: 4, tempo: 280 },
+            2: { speed: 7000, spawnRate: 2000, targets: 6, tempo: 220 },
+            3: { speed: 4500, spawnRate: 1400, targets: 8, tempo: 160 },
+            4: { speed: 3000, spawnRate: 900, targets: 10, tempo: 120 },
+            5: { targets: 10, mode: 'dictation' }
+        };
+        
+        // Game State
+        const gameState = {
+            score: 0, lives: 3, level: 1,
+            targetItem: '', isPlaying: false, isPaused: false,
+            isInChallenge: false, isDictationMode: false,
+            currentChallenge: null, isDoubleDown: false,
+            letterSpeed: 10000, spawnRate: 2500,
+            itemsPerRound: 5, itemsCorrect: 0,
+            itemPool: [], activeItems: [], activeLasers: [],
+            spawnInterval: null, shipX: 50,
+            canShoot: true, shootCooldown: 250,
+            currentUser: null, musicEnabled: true,
+            challengeFreezeTime: 0
+        };
+        
+        // Audio
+        let audioContext;
+        let musicInterval = null;
+        let musicStep = 0;
+        
+        // Data storage
+        let gameData = {
+            players: {}
+        };
+        
+        // DOM Elements
+        const el = {
+            loginScreen: document.getElementById('loginScreen'),
+            usernameInput: document.getElementById('usernameInput'),
+            loginBtn: document.getElementById('loginBtn'),
+            viewScoresBtn: document.getElementById('viewScoresBtn'),
+            importBtn: document.getElementById('importBtn'),
+            importFile: document.getElementById('importFile'),
+            titleScreen: document.getElementById('titleScreen'),
+            playerName: document.getElementById('playerName'),
+            levelSelect: document.getElementById('levelSelect'),
+            startBtn: document.getElementById('startBtn'),
+            statsBtn: document.getElementById('statsBtn'),
+            scoresBtn: document.getElementById('scoresBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            changeUserBtn: document.getElementById('changeUserBtn'),
+            statsScreen: document.getElementById('statsScreen'),
+            statsPlayerName: document.getElementById('statsPlayerName'),
+            statsContainer: document.getElementById('statsContainer'),
+            statsBackBtn: document.getElementById('statsBackBtn'),
+            scoreboardScreen: document.getElementById('scoreboardScreen'),
+            scoreboardList: document.getElementById('scoreboardList'),
+            scoreboardBackBtn: document.getElementById('scoreboardBackBtn'),
+            scoreDisplay: document.getElementById('score'),
+            roundDisplay: document.getElementById('round'),
+            modeDisplay: document.getElementById('modeDisplay'),
+            livesDisplay: document.getElementById('livesDisplay'),
+            pauseBtn: document.getElementById('pauseBtn'),
+            musicToggle: document.getElementById('musicToggle'),
+            targetLabel: document.getElementById('targetLabel'),
+            targetLetter: document.getElementById('targetLetter'),
+            speakBtn: document.getElementById('speakBtn'),
+            gameArea: document.getElementById('gameArea'),
+            spaceship: document.getElementById('spaceship'),
+            shootHint: document.getElementById('shootHint'),
+            pauseOverlay: document.getElementById('pauseOverlay'),
+            resumeBtn: document.getElementById('resumeBtn'),
+            quitBtn: document.getElementById('quitBtn'),
+            levelComplete: document.getElementById('levelComplete'),
+            levelCompleteTitle: document.getElementById('levelCompleteTitle'),
+            levelCompleteText: document.getElementById('levelCompleteText'),
+            nextLevelIntro: document.getElementById('nextLevelIntro'),
+            starsEarned: document.getElementById('starsEarned'),
+            continueBtn: document.getElementById('continueBtn'),
+            gameComplete: document.getElementById('gameComplete'),
+            winScore: document.getElementById('winScore'),
+            winStars: document.getElementById('winStars'),
+            playAgainBtn: document.getElementById('playAgainBtn'),
+            winMenuBtn: document.getElementById('winMenuBtn'),
+            gameOver: document.getElementById('gameOver'),
+            finalScore: document.getElementById('finalScore'),
+            retryBtn: document.getElementById('retryBtn'),
+            gameOverMenuBtn: document.getElementById('gameOverMenuBtn'),
+            gameContainer: document.getElementById('gameContainer'),
+            // Challenge modal
+            challengeModal: document.getElementById('challengeModal'),
+            challengeQuestion: document.getElementById('challengeQuestion'),
+            challengeOptions: document.getElementById('challengeOptions'),
+            challengeResult: document.getElementById('challengeResult'),
+            challengeContinueBtn: document.getElementById('challengeContinueBtn'),
+            doubleDownSection: document.getElementById('doubleDownSection'),
+            returnBtn: document.getElementById('returnBtn'),
+            doubleDownBtn: document.getElementById('doubleDownBtn'),
+            // Dictation mode
+            dictationArea: document.getElementById('dictationArea'),
+            dictationPrompt: document.getElementById('dictationPrompt'),
+            dictationInput: document.getElementById('dictationInput'),
+            dictationSubmitBtn: document.getElementById('dictationSubmitBtn'),
+            beatsMeBtn: document.getElementById('beatsMeBtn')
+        };
+        
+        // Initialize
+        function init() {
+            createStarfield();
+            startShootingStars();
+            loadData();
+            setupEventListeners();
+            if ('speechSynthesis' in window) {
+                speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+            }
+        }
+        
+        function startShootingStars() {
+            const starfield = document.getElementById('starfield');
+            
+            function createShootingStar() {
+                const star = document.createElement('div');
+                star.className = 'shooting-star';
+                star.style.left = (Math.random() * 100) + '%';
+                star.style.top = (Math.random() * 60) + '%';
+                starfield.appendChild(star);
+                
+                setTimeout(() => star.remove(), 1200);
+                setTimeout(createShootingStar, 2000 + Math.random() * 3000);
+            }
+            
+            setTimeout(createShootingStar, 1000);
+        }
+        
+        function createStarfield() {
+            const starfield = document.getElementById('starfield');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'bg-star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starfield.appendChild(star);
+            }
+        }
+        
+        // Data Management
+        function loadData() {
+            try {
+                const saved = localStorage.getItem('alphabetBlasterData');
+                if (saved) gameData = JSON.parse(saved);
+            } catch (e) {
+                console.log('No saved data');
+            }
+        }
+        
+        function saveData() {
+            try {
+                localStorage.setItem('alphabetBlasterData', JSON.stringify(gameData));
+            } catch (e) {
+                console.log('Could not save data');
+            }
+        }
+        
+        function exportData() {
+            const blob = new Blob([JSON.stringify(gameData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'alphabet-blaster-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function importData(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.players) {
+                        // Merge data
+                        for (const player in imported.players) {
+                            if (!gameData.players[player]) {
+                                gameData.players[player] = imported.players[player];
+                            } else {
+                                // Merge history
+                                const existing = gameData.players[player];
+                                const incoming = imported.players[player];
+                                existing.history = [...existing.history, ...incoming.history];
+                                existing.gamesPlayed = existing.history.length;
+                                existing.bestScore = Math.max(existing.bestScore, incoming.bestScore);
+                            }
+                        }
+                        saveData();
+                        alert('Data imported successfully!');
+                    }
+                } catch (err) {
+                    alert('Invalid file format');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function saveGameResult(score, level) {
+            if (!gameState.currentUser) return;
+            const player = gameState.currentUser;
+            if (!gameData.players[player]) {
+                gameData.players[player] = { gamesPlayed: 0, bestScore: 0, history: [] };
+            }
+            const p = gameData.players[player];
+            p.gamesPlayed++;
+            p.bestScore = Math.max(p.bestScore, score);
+            p.history.push({
+                score: score,
+                level: level,
+                date: new Date().toISOString().split('T')[0]
+            });
+            // Keep only last 50 games
+            if (p.history.length > 50) p.history = p.history.slice(-50);
+            saveData();
+        }
+        
+        function getTopScores() {
+            const scores = [];
+            for (const player in gameData.players) {
+                const p = gameData.players[player];
+                if (p.bestScore > 0) {
+                    scores.push({ name: player, score: p.bestScore, games: p.gamesPlayed });
+                }
+            }
+            return scores.sort((a, b) => b.score - a.score).slice(0, 10);
+        }
+        
+        // Audio System
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        function playSound(type) {
+            initAudio();
+            
+            if (type === 'blast') {
+                // Layered blast sound
+                const now = audioContext.currentTime;
+                
+                // Noise burst
+                const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate);
+                const noise = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < noise.length; i++) noise[i] = Math.random() * 2 - 1;
+                const noiseSource = audioContext.createBufferSource();
+                noiseSource.buffer = noiseBuffer;
+                const noiseGain = audioContext.createGain();
+                noiseGain.gain.setValueAtTime(0.3, now);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                noiseSource.connect(noiseGain);
+                noiseGain.connect(audioContext.destination);
+                noiseSource.start(now);
+                
+                // Low thump
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.1);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+                
+            } else if (type === 'correct') {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.frequency.setValueAtTime(523.25, audioContext.currentTime);
+                osc.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.08);
+                osc.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.16);
+                gain.gain.setValueAtTime(0.25, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioContext.currentTime + 0.3);
+                
+            } else if (type === 'wrong') {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioContext.currentTime);
+                osc.frequency.setValueAtTime(120, audioContext.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                osc.start();
+                osc.stop(audioContext.currentTime + 0.2);
+                
+            } else if (type === 'levelup') {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                const now = audioContext.currentTime;
+                osc.frequency.setValueAtTime(392, now);
+                osc.frequency.setValueAtTime(523.25, now + 0.12);
+                osc.frequency.setValueAtTime(659.25, now + 0.24);
+                osc.frequency.setValueAtTime(783.99, now + 0.36);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start();
+                osc.stop(now + 0.5);
+                
+            } else if (type === 'win') {
+                const now = audioContext.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.setValueAtTime(freq, now + i * 0.15);
+                    gain.gain.setValueAtTime(0.2, now + i * 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.15 + 0.2);
+                    osc.start(now + i * 0.15);
+                    osc.stop(now + i * 0.15 + 0.2);
+                });
+            }
+        }
+        
+        // Retro Music System - Different music per level!
+        const MUSIC_DATA = {
+            1: { // Level 1: Friendly, simple, slow
+                bass: [65.41, 65.41, 82.41, 82.41, 73.42, 73.42, 82.41, 65.41],
+                melody: [261.63, 293.66, 329.63, 293.66, 261.63, 329.63, 293.66, 261.63],
+                wave: 'triangle'
+            },
+            2: { // Level 2: Minor key, slightly tense
+                bass: [55.00, 55.00, 73.42, 73.42, 65.41, 65.41, 73.42, 55.00],
+                melody: [220.00, 261.63, 293.66, 261.63, 246.94, 293.66, 261.63, 220.00],
+                wave: 'square'
+            },
+            3: { // Level 3: Energetic, faster feel
+                bass: [82.41, 98.00, 82.41, 110.00, 82.41, 98.00, 110.00, 82.41],
+                melody: [329.63, 392.00, 440.00, 392.00, 349.23, 440.00, 392.00, 329.63],
+                wave: 'sawtooth'
+            },
+            4: { // Level 4: Intense, dramatic, urgent
+                bass: [110.00, 130.81, 110.00, 146.83, 110.00, 130.81, 146.83, 110.00],
+                melody: [440.00, 523.25, 587.33, 523.25, 493.88, 587.33, 523.25, 440.00],
+                wave: 'square'
+            }
+        };
+        
+        function startMusic() {
+            if (!gameState.musicEnabled || musicInterval) return;
+            initAudio();
+            musicStep = 0;
+            
+            const level = gameState.level || 1;
+            const music = MUSIC_DATA[level];
+            const config = LEVEL_CONFIG[level];
+            const tempo = config.tempo;
+            
+            musicInterval = setInterval(() => {
+                if (gameState.isPaused || !gameState.isPlaying) return;
+                
+                const now = audioContext.currentTime;
+                const noteLength = tempo / 1000 * 0.8;
+                
+                // Bass - punchy low end
+                const bass = audioContext.createOscillator();
+                const bassGain = audioContext.createGain();
+                bass.type = 'square';
+                bass.frequency.setValueAtTime(music.bass[musicStep % music.bass.length], now);
+                bassGain.gain.setValueAtTime(0.1, now);
+                bassGain.gain.exponentialRampToValueAtTime(0.01, now + noteLength);
+                bass.connect(bassGain);
+                bassGain.connect(audioContext.destination);
+                bass.start(now);
+                bass.stop(now + noteLength);
+                
+                // Melody (every other beat for levels 1-2, every beat for 3-4)
+                const melodyFrequency = (level <= 2) ? 2 : 1;
+                if (musicStep % melodyFrequency === 0) {
+                    const mel = audioContext.createOscillator();
+                    const melGain = audioContext.createGain();
+                    mel.type = music.wave;
+                    const melIndex = (level <= 2) ? (musicStep / 2) : musicStep;
+                    mel.frequency.setValueAtTime(music.melody[melIndex % music.melody.length], now);
+                    melGain.gain.setValueAtTime(0.07, now);
+                    melGain.gain.exponentialRampToValueAtTime(0.01, now + noteLength * 0.9);
+                    mel.connect(melGain);
+                    melGain.connect(audioContext.destination);
+                    mel.start(now);
+                    mel.stop(now + noteLength * 0.9);
+                }
+                
+                // Hi-hat - faster on higher levels
+                const hatBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.03, audioContext.sampleRate);
+                const hatData = hatBuffer.getChannelData(0);
+                for (let i = 0; i < hatData.length; i++) hatData[i] = Math.random() * 2 - 1;
+                const hat = audioContext.createBufferSource();
+                hat.buffer = hatBuffer;
+                const hatGain = audioContext.createGain();
+                const hatVolume = 0.03 + (level * 0.01); // Louder hats on higher levels
+                hatGain.gain.setValueAtTime(hatVolume, now);
+                hatGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+                hat.connect(hatGain);
+                hatGain.connect(audioContext.destination);
+                hat.start(now);
+                
+                // Kick drum on beats 1 and 5 (every 4 steps) for levels 3-4
+                if (level >= 3 && musicStep % 4 === 0) {
+                    const kick = audioContext.createOscillator();
+                    const kickGain = audioContext.createGain();
+                    kick.type = 'sine';
+                    kick.frequency.setValueAtTime(150, now);
+                    kick.frequency.exponentialRampToValueAtTime(30, now + 0.1);
+                    kickGain.gain.setValueAtTime(0.3, now);
+                    kickGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    kick.connect(kickGain);
+                    kickGain.connect(audioContext.destination);
+                    kick.start(now);
+                    kick.stop(now + 0.1);
+                }
+                
+                musicStep++;
+            }, tempo);
+        }
+        
+        function stopMusic() {
+            if (musicInterval) {
+                clearInterval(musicInterval);
+                musicInterval = null;
+            }
+        }
+        
+        function toggleMusic() {
+            gameState.musicEnabled = !gameState.musicEnabled;
+            el.musicToggle.textContent = gameState.musicEnabled ? '🔊' : '🔇';
+            if (!gameState.musicEnabled) {
+                stopMusic();
+            } else if (gameState.isPlaying && !gameState.isPaused) {
+                startMusic();
+            }
+        }
+        
+        // Speech
+        function speakItem(item) {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(item.toLowerCase());
+                
+                // Slower speech for letter levels (1 & 2)
+                if (gameState.level <= 2) {
+                    utterance.rate = 0.5;
+                } else {
+                    utterance.rate = 0.75;
+                }
+                
+                utterance.pitch = 1.1;
+                const voices = speechSynthesis.getVoices();
+                const englishVoice = voices.find(v => v.lang.startsWith('en-US')) || 
+                                     voices.find(v => v.lang.startsWith('en')) || voices[0];
+                if (englishVoice) utterance.voice = englishVoice;
+                speechSynthesis.speak(utterance);
+            }
+        }
+        
+        // Game Logic
+        function getItemPool() {
+            if (gameState.level >= 3) {
+                const shuffled = [...CVC_WORDS].sort(() => Math.random() - 0.5);
+                return shuffled.slice(0, 6);
+            } else {
+                const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const perRound = 6;
+                const start = Math.floor(Math.random() * 20);
+                let pool = '';
+                for (let i = 0; i < perRound; i++) pool += alphabet[(start + i) % 26];
+                return pool.split('');
+            }
+        }
+        
+        function updateModeDisplay() {
+            const modeNames = ['', 'SEE & HEAR', 'LISTEN ONLY', 'CVC SEE', 'CVC LISTEN', 'SPELLING'];
+            el.modeDisplay.textContent = `LVL ${gameState.level}: ${modeNames[gameState.level]}`;
+            
+            if (gameState.level === 1 || gameState.level === 3) {
+                el.targetLabel.textContent = '🎯 SHOOT THIS 🎯';
+                el.targetLetter.classList.remove('hidden-letter');
+            } else if (gameState.level === 5) {
+                el.targetLabel.textContent = '✍️ SPELL THE WORD ✍️';
+                el.targetLetter.classList.add('hidden-letter');
+            } else {
+                el.targetLabel.textContent = '👂 LISTEN & SHOOT 👂';
+                el.targetLetter.classList.add('hidden-letter');
+            }
+        }
+        
+        function setNewTarget() {
+            const pool = gameState.itemPool;
+            gameState.targetItem = pool[Math.floor(Math.random() * pool.length)];
+            el.targetLetter.textContent = gameState.targetItem;
+            
+            if (gameState.level === 2 || gameState.level === 4) {
+                el.targetLetter.classList.add('hidden-letter');
+            }
+            
+            setTimeout(() => speakItem(gameState.targetItem), 300);
+        }
+        
+        function createFloatingItem() {
+            if (!gameState.isPlaying || gameState.isPaused || gameState.isInChallenge) return;
+            
+            // 10% chance to spawn a meteorite instead
+            if (Math.random() < 0.10) {
+                createMeteorite();
+                return;
+            }
+            
+            const item = document.createElement('div');
+            item.className = (gameState.level >= 3) ? 'floating-word' : 'floating-letter';
+            
+            const isTarget = Math.random() < 0.35;
+            const pool = gameState.itemPool;
+            const content = isTarget ? gameState.targetItem : pool[Math.floor(Math.random() * pool.length)];
+            
+            item.textContent = content;
+            item.dataset.item = content;
+            
+            const colors = ['#ff00ff', '#00ffff', '#ffff00', '#00ff00', '#ff6600', '#ff66ff'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            item.style.color = color;
+            item.style.textShadow = `0 0 15px ${color}, 0 0 30px ${color}`;
+            
+            const itemWidth = (gameState.level >= 3) ? 120 : 50;
+            const maxX = el.gameArea.offsetWidth - itemWidth;
+            item.style.left = Math.random() * maxX + 'px';
+            item.style.top = '-70px';
+            
+            item.dataset.startTime = Date.now();
+            item.dataset.duration = gameState.letterSpeed;
+            
+            el.gameArea.appendChild(item);
+            gameState.activeItems.push(item);
+        }
+        
+        function createMeteorite() {
+            const item = document.createElement('div');
+            item.className = 'meteorite';
+            item.textContent = '☄️';
+            item.dataset.isMeteorite = 'true';
+            
+            const maxX = el.gameArea.offsetWidth - 60;
+            item.style.left = Math.max(0, Math.random() * maxX) + 'px';
+            item.style.top = '-80px';
+            
+            item.dataset.startTime = Date.now();
+            item.dataset.duration = gameState.letterSpeed * 1.2;
+            
+            el.gameArea.appendChild(item);
+            gameState.activeItems.push(item);
+        }
+        
+        function updateItems() {
+            const h = el.gameArea.offsetHeight;
+            const shipRect = el.spaceship.getBoundingClientRect();
+            
+            gameState.activeItems = gameState.activeItems.filter(item => {
+                const elapsed = Date.now() - parseInt(item.dataset.startTime);
+                const progress = elapsed / parseInt(item.dataset.duration);
+                
+                if (progress >= 1) { 
+                    item.remove(); 
+                    return false; 
+                }
+                
+                item.style.top = (-70 + (h + 140) * progress) + 'px';
+                
+                // Only check collision for non-meteorite items near the bottom
+                if (item.dataset.isMeteorite !== 'true' && progress > 0.85) {
+                    const itemRect = item.getBoundingClientRect();
+                    const collision = !(itemRect.right < shipRect.left || 
+                                       itemRect.left > shipRect.right || 
+                                       itemRect.bottom < shipRect.top || 
+                                       itemRect.top > shipRect.bottom);
+                    
+                    if (collision && !item.classList.contains('hit')) {
+                        handleSpaceshipCollision(item);
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+        }
+        
+        function handleSpaceshipCollision(item) {
+            playSound('wrong');
+            gameState.lives--;
+            updateLives();
+            
+            const r = item.getBoundingClientRect();
+            const cr = el.gameContainer.getBoundingClientRect();
+            const x = r.left - cr.left + r.width / 2;
+            const y = r.top - cr.top + r.height / 2;
+            
+            createExplosion(x, y, '💥');
+            showFeedback('OUCH!', 'oops');
+            item.remove();
+            
+            if (gameState.lives <= 0) {
+                gameOverScreen();
+            }
+        }
+        
+        function moveShip(clientX) {
+            const rect = el.gameContainer.getBoundingClientRect();
+            const relX = clientX - rect.left;
+            const w = rect.width;
+            gameState.shipX = Math.max(25, Math.min(w - 25, relX));
+            el.spaceship.style.left = gameState.shipX + 'px';
+        }
+        
+        function shoot() {
+            if (!gameState.isPlaying || gameState.isPaused || !gameState.canShoot) return;
+            gameState.canShoot = false;
+            setTimeout(() => gameState.canShoot = true, gameState.shootCooldown);
+            
+            playSound('blast');
+            el.spaceship.classList.add('shooting');
+            setTimeout(() => el.spaceship.classList.remove('shooting'), 100);
+            el.shootHint.style.display = 'none';
+            
+            const laser = document.createElement('div');
+            laser.className = 'laser';
+            laser.style.left = (gameState.shipX - 4) + 'px';
+            laser.style.bottom = '60px';
+            el.gameContainer.appendChild(laser);
+            gameState.activeLasers.push(laser);
+        }
+        
+        function updateLasers() {
+            const speed = 18;
+            gameState.activeLasers = gameState.activeLasers.filter(laser => {
+                const bot = parseFloat(laser.style.bottom) || 0;
+                const newBot = bot + speed;
+                if (newBot > el.gameContainer.offsetHeight) { laser.remove(); return false; }
+                laser.style.bottom = newBot + 'px';
+                
+                const lr = laser.getBoundingClientRect();
+                const lcx = lr.left + lr.width / 2;
+                const lt = lr.top;
+                
+                for (let i = gameState.activeItems.length - 1; i >= 0; i--) {
+                    const item = gameState.activeItems[i];
+                    const ir = item.getBoundingClientRect();
+                    if (lcx >= ir.left && lcx <= ir.right && lt <= ir.bottom && lt >= ir.top - 15) {
+                        laser.remove();
+                        handleHit(item, item.dataset.item);
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+        
+        function handleHit(item, hitItem) {
+            const r = item.getBoundingClientRect();
+            const cr = el.gameContainer.getBoundingClientRect();
+            const x = r.left - cr.left + r.width / 2;
+            const y = r.top - cr.top + r.height / 2;
+            gameState.activeItems = gameState.activeItems.filter(i => i !== item);
+            
+            // Check if it's a meteorite
+            if (item.dataset.isMeteorite === 'true') {
+                createExplosion(x, y, '💫');
+                item.remove();
+                showChallenge();
+                return;
+            }
+            
+            if (hitItem === gameState.targetItem) {
+                playSound('correct');
+                gameState.score += 100 * gameState.level;
+                gameState.itemsCorrect++;
+                el.scoreDisplay.textContent = gameState.score;
+                item.classList.add('hit');
+                createExplosion(x, y, '💥');
+                showFeedback('GREAT!', 'great');
+                setTimeout(() => item.remove(), 300);
+                
+                if (gameState.itemsCorrect >= gameState.itemsPerRound) {
+                    roundComplete();
+                } else {
+                    setNewTarget();
+                }
+            } else {
+                playSound('wrong');
+                gameState.lives--;
+                updateLives();
+                item.style.color = '#ff0000';
+                item.classList.add('hit');
+                createExplosion(x, y, '💨');
+                
+                if (gameState.level === 2 || gameState.level === 4) {
+                    el.targetLetter.classList.remove('hidden-letter');
+                    setTimeout(() => el.targetLetter.classList.add('hidden-letter'), 1200);
+                }
+                
+                showFeedback('TRY AGAIN!', 'oops');
+                setTimeout(() => speakItem(gameState.targetItem), 400);
+                setTimeout(() => item.remove(), 300);
+                
+                if (gameState.lives <= 0) gameOverScreen();
+            }
+        }
+        
+        function createExplosion(x, y, emoji) {
+            const exp = document.createElement('div');
+            exp.className = 'explosion';
+            exp.textContent = emoji;
+            exp.style.left = (x - 20) + 'px';
+            exp.style.top = (y - 20) + 'px';
+            el.gameContainer.appendChild(exp);
+            setTimeout(() => exp.remove(), 500);
+        }
+        
+        function showFeedback(msg, type) {
+            const fb = document.createElement('div');
+            fb.className = `feedback ${type}`;
+            fb.textContent = msg;
+            el.gameContainer.appendChild(fb);
+            setTimeout(() => fb.remove(), 1000);
+        }
+        
+        function updateLives() {
+            el.livesDisplay.innerHTML = '';
+            for (let i = 0; i < gameState.lives; i++) {
+                const life = document.createElement('span');
+                life.className = 'life-icon';
+                life.textContent = '🚀';
+                el.livesDisplay.appendChild(life);
+            }
+        }
+        
+        // Challenge System (Meteorite) - Multiple Choice
+        function showChallenge() {
+            gameState.isInChallenge = true;
+            gameState.isDoubleDown = false;
+            gameState.challengeFreezeTime = Date.now();
+            
+            gameState.activeItems.forEach(item => {
+                item.dataset.frozenElapsed = Date.now() - parseInt(item.dataset.startTime);
+            });
+            
+            clearInterval(gameState.spawnInterval);
+            stopMusic();
+            
+            const question = CHALLENGE_QUESTIONS[Math.floor(Math.random() * CHALLENGE_QUESTIONS.length)];
+            gameState.currentChallenge = question;
+            
+            el.challengeQuestion.textContent = question.q;
+            el.challengeResult.classList.add('hidden');
+            el.doubleDownSection.classList.add('hidden');
+            el.challengeContinueBtn.classList.add('hidden');
+            
+            const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+            el.challengeOptions.innerHTML = '';
+            shuffledOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'challenge-option';
+                btn.textContent = option;
+                btn.addEventListener('click', () => selectChallengeOption(btn, option));
+                el.challengeOptions.appendChild(btn);
+            });
+            
+            el.challengeModal.classList.remove('hidden');
+        }
+        
+        function selectChallengeOption(btn, selectedOption) {
+            const correct = gameState.currentChallenge.a;
+            const isCorrect = selectedOption === correct;
+            
+            const allOptions = el.challengeOptions.querySelectorAll('.challenge-option');
+            allOptions.forEach(opt => {
+                opt.classList.add('disabled');
+                if (opt.textContent === correct) {
+                    opt.classList.add('correct');
+                }
+            });
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playSound('correct');
+                if (gameState.lives < 5) {
+                    gameState.lives++;
+                    updateLives();
+                }
+                el.challengeResult.textContent = '+1 LIFE!';
+                el.challengeResult.className = 'challenge-result correct';
+                el.challengeResult.classList.remove('hidden');
+                el.challengeContinueBtn.classList.remove('hidden');
+            } else {
+                btn.classList.add('wrong');
+                playSound('wrong');
+                el.challengeResult.textContent = `Correct answer: ${correct}`;
+                el.challengeResult.className = 'challenge-result wrong';
+                el.challengeResult.classList.remove('hidden');
+                
+                if (gameState.isDoubleDown) {
+                    gameState.lives--;
+                    updateLives();
+                    el.challengeResult.textContent = `Wrong! -1 LIFE. Answer: ${correct}`;
+                    el.challengeContinueBtn.classList.remove('hidden');
+                    if (gameState.lives <= 0) {
+                        setTimeout(() => {
+                            el.challengeModal.classList.add('hidden');
+                            gameOverScreen();
+                        }, 1500);
+                        return;
+                    }
+                } else {
+                    el.doubleDownSection.classList.remove('hidden');
+                }
+            }
+        }
+        
+        function handleReturn() {
+            closeChallenge();
+        }
+        
+        function handleDoubleDown() {
+            gameState.isDoubleDown = true;
+            const question = CHALLENGE_QUESTIONS[Math.floor(Math.random() * CHALLENGE_QUESTIONS.length)];
+            gameState.currentChallenge = question;
+            
+            el.challengeQuestion.textContent = question.q;
+            el.challengeResult.classList.add('hidden');
+            el.doubleDownSection.classList.add('hidden');
+            el.challengeContinueBtn.classList.add('hidden');
+            
+            const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+            el.challengeOptions.innerHTML = '';
+            shuffledOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'challenge-option';
+                btn.textContent = option;
+                btn.addEventListener('click', () => selectChallengeOption(btn, option));
+                el.challengeOptions.appendChild(btn);
+            });
+        }
+        
+        function closeChallenge() {
+            gameState.isInChallenge = false;
+            el.challengeModal.classList.add('hidden');
+            
+            gameState.activeItems.forEach(item => {
+                const frozenElapsed = parseInt(item.dataset.frozenElapsed) || 0;
+                item.dataset.startTime = Date.now() - frozenElapsed;
+            });
+            
+            startSpawning();
+            startMusic();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function roundComplete() {
+            gameState.isPlaying = false;
+            gameState.isDictationMode = false;
+            stopMusic();
+            clearInterval(gameState.spawnInterval);
+            clearItems();
+            
+            el.dictationArea.classList.add('hidden');
+            el.spaceship.style.display = '';
+            el.shootHint.style.display = '';
+            
+            if (gameState.level === 5) {
+                // Game complete!
+                playSound('win');
+                saveGameResult(gameState.score, gameState.level);
+                el.winScore.textContent = gameState.score;
+                el.winStars.innerHTML = '';
+                for (let i = 0; i < 3; i++) {
+                    const star = document.createElement('span');
+                    star.className = 'star';
+                    star.textContent = '⭐';
+                    star.style.animationDelay = (i * 0.2) + 's';
+                    el.winStars.appendChild(star);
+                }
+                el.gameComplete.classList.remove('hidden');
+                return;
+            }
+            
+            playSound('levelup');
+            
+            const stars = Math.min(3, Math.ceil(gameState.lives));
+            el.starsEarned.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const star = document.createElement('span');
+                star.className = 'star';
+                star.textContent = i < stars ? '⭐' : '☆';
+                star.style.animationDelay = (i * 0.2) + 's';
+                el.starsEarned.appendChild(star);
+            }
+            
+            const nextLevel = gameState.level + 1;
+            const intros = {
+                2: '👂 <b>LISTEN ONLY!</b><br>The letter is hidden now.<br>Listen carefully!',
+                3: '📝 <b>CVC WORDS!</b><br>See & hear simple words<br>like Cat, Dog, Pig!',
+                4: '🎧 <b>LISTEN ONLY WORDS!</b><br>The word is hidden.<br>Listen and shoot!',
+                5: '✍️ <b>SPELLING BEE!</b><br>Listen to the word.<br>Type the spelling!'
+            };
+            
+            el.levelCompleteTitle.textContent = `🎉 LEVEL ${gameState.level} DONE! 🎉`;
+            el.levelCompleteText.textContent = `Get ready for Level ${nextLevel}!`;
+            el.nextLevelIntro.innerHTML = intros[nextLevel];
+            el.levelComplete.classList.remove('hidden');
+        }
+        
+        function gameOverScreen() {
+            gameState.isPlaying = false;
+            stopMusic();
+            clearInterval(gameState.spawnInterval);
+            clearItems();
+            saveGameResult(gameState.score, gameState.level);
+            el.finalScore.textContent = gameState.score;
+            el.gameOver.classList.remove('hidden');
+        }
+        
+        function clearItems() {
+            gameState.activeItems.forEach(i => i.remove());
+            gameState.activeItems = [];
+            gameState.activeLasers.forEach(l => l.remove());
+            gameState.activeLasers = [];
+        }
+        
+        function startGame() {
+            initAudio();
+            
+            const selectedLevel = parseInt(el.levelSelect.value) || 1;
+            const config = LEVEL_CONFIG[selectedLevel];
+            
+            gameState.score = 0;
+            gameState.lives = 3;
+            gameState.level = selectedLevel;
+            gameState.itemsPerRound = config.targets;
+            gameState.itemsCorrect = 0;
+            gameState.itemPool = getItemPool();
+            gameState.isPlaying = true;
+            gameState.isPaused = false;
+            gameState.canShoot = true;
+            gameState.isDictationMode = false;
+            
+            el.scoreDisplay.textContent = '0';
+            el.roundDisplay.textContent = selectedLevel;
+            updateModeDisplay();
+            updateLives();
+            
+            hideAllScreens();
+            
+            if (selectedLevel === 5) {
+                startDictationMode();
+            } else {
+                gameState.letterSpeed = config.speed;
+                gameState.spawnRate = config.spawnRate;
+                
+                el.spaceship.style.display = '';
+                el.shootHint.style.display = 'block';
+                el.dictationArea.classList.add('hidden');
+                
+                gameState.shipX = el.gameContainer.offsetWidth / 2;
+                el.spaceship.style.left = gameState.shipX + 'px';
+                
+                setNewTarget();
+                startSpawning();
+                startMusic();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        function nextLevel() {
+            gameState.level++;
+            const config = LEVEL_CONFIG[gameState.level];
+            
+            gameState.itemsPerRound = config.targets;
+            gameState.itemsCorrect = 0;
+            gameState.itemPool = getItemPool();
+            gameState.isPlaying = true;
+            
+            el.roundDisplay.textContent = gameState.level;
+            updateModeDisplay();
+            el.levelComplete.classList.add('hidden');
+            
+            if (gameState.level === 5) {
+                startDictationMode();
+            } else {
+                gameState.letterSpeed = config.speed;
+                gameState.spawnRate = config.spawnRate;
+                gameState.isDictationMode = false;
+                
+                el.spaceship.style.display = '';
+                el.shootHint.style.display = 'block';
+                el.dictationArea.classList.add('hidden');
+                
+                setNewTarget();
+                startSpawning();
+                startMusic();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        // Dictation Mode (Level 5)
+        function startDictationMode() {
+            gameState.isDictationMode = true;
+            gameState.itemPool = [...CVC_WORDS].sort(() => Math.random() - 0.5).slice(0, 10);
+            
+            el.spaceship.style.display = 'none';
+            el.shootHint.style.display = 'none';
+            el.gameArea.innerHTML = '';
+            
+            el.dictationArea.classList.remove('hidden');
+            setDictationWord();
+        }
+        
+        function setDictationWord() {
+            const pool = gameState.itemPool;
+            const word = pool[Math.floor(Math.random() * pool.length)];
+            gameState.targetItem = word;
+            
+            // Always audio-only for spelling
+            el.dictationPrompt.textContent = '🔊';
+            el.dictationPrompt.style.fontSize = 'clamp(3rem, 10vw, 5rem)';
+            
+            el.dictationInput.value = '';
+            el.dictationInput.focus();
+            
+            setTimeout(() => speakItem(word), 300);
+        }
+        
+        function checkDictationAnswer() {
+            const userAnswer = el.dictationInput.value.trim().toLowerCase();
+            const correctAnswer = gameState.targetItem.toLowerCase();
+            
+            if (userAnswer === correctAnswer) {
+                playSound('correct');
+                gameState.score += 100 * gameState.level;
+                gameState.itemsCorrect++;
+                el.scoreDisplay.textContent = gameState.score;
+                showFeedback('GREAT!', 'great');
+                
+                if (gameState.itemsCorrect >= gameState.itemsPerRound) {
+                    roundComplete();
+                } else {
+                    setTimeout(setDictationWord, 800);
+                }
+            } else {
+                playSound('wrong');
+                el.dictationPrompt.innerHTML = `${gameState.targetItem}<br><span style="font-size:0.4em; color:var(--neon-cyan);">Try again!</span>`;
+                el.dictationInput.value = '';
+                el.dictationInput.focus();
+            }
+        }
+        
+        function handleBeatsMe() {
+            playSound('wrong');
+            gameState.lives--;
+            updateLives();
+            
+            el.dictationPrompt.innerHTML = `${gameState.targetItem}`;
+            showFeedback('The answer was shown!', 'oops');
+            
+            if (gameState.lives <= 0) {
+                setTimeout(gameOverScreen, 1500);
+                return;
+            }
+            
+            setTimeout(() => {
+                gameState.itemsCorrect++;
+                if (gameState.itemsCorrect >= gameState.itemsPerRound) {
+                    roundComplete();
+                } else {
+                    setDictationWord();
+                }
+            }, 2000);
+        }
+        
+        function startSpawning() {
+            setTimeout(createFloatingItem, 400);
+            setTimeout(createFloatingItem, 1000);
+            gameState.spawnInterval = setInterval(createFloatingItem, gameState.spawnRate);
+        }
+        
+        function gameLoop() {
+            if (gameState.isPlaying && !gameState.isPaused && !gameState.isInChallenge && !gameState.isDictationMode) {
+                updateItems();
+                updateLasers();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        function pauseGame() {
+            if (!gameState.isPlaying) return;
+            gameState.isPaused = true;
+            stopMusic();
+            clearInterval(gameState.spawnInterval);
+            el.pauseOverlay.classList.remove('hidden');
+        }
+        
+        function resumeGame() {
+            gameState.isPaused = false;
+            el.pauseOverlay.classList.add('hidden');
+            startSpawning();
+            startMusic();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function quitGame() {
+            gameState.isPlaying = false;
+            gameState.isPaused = false;
+            stopMusic();
+            clearInterval(gameState.spawnInterval);
+            clearItems();
+            el.pauseOverlay.classList.add('hidden');
+            showTitleScreen();
+        }
+        
+        // Screens
+        function hideAllScreens() {
+            el.loginScreen.classList.add('hidden');
+            el.titleScreen.classList.add('hidden');
+            el.statsScreen.classList.add('hidden');
+            el.scoreboardScreen.classList.add('hidden');
+            el.levelComplete.classList.add('hidden');
+            el.gameComplete.classList.add('hidden');
+            el.gameOver.classList.add('hidden');
+            el.pauseOverlay.classList.add('hidden');
+        }
+        
+        function showLoginScreen() {
+            hideAllScreens();
+            el.loginScreen.classList.remove('hidden');
+        }
+        
+        function showTitleScreen() {
+            hideAllScreens();
+            el.playerName.textContent = gameState.currentUser;
+            el.titleScreen.classList.remove('hidden');
+        }
+        
+        function showStatsScreen() {
+            hideAllScreens();
+            el.statsPlayerName.textContent = gameState.currentUser;
+            
+            const p = gameData.players[gameState.currentUser];
+            let html = '';
+            if (p && p.gamesPlayed > 0) {
+                const avg = Math.round(p.history.reduce((a, g) => a + g.score, 0) / p.history.length);
+                html = `
+                    <div class="stat-item"><span>Games Played:</span><span class="stat-value">${p.gamesPlayed}</span></div>
+                    <div class="stat-item"><span>Best Score:</span><span class="stat-value">${p.bestScore}</span></div>
+                    <div class="stat-item"><span>Average Score:</span><span class="stat-value">${avg}</span></div>
+                    <div class="stat-item"><span>Last Played:</span><span class="stat-value">${p.history[p.history.length-1]?.date || 'N/A'}</span></div>
+                `;
+            } else {
+                html = '<div class="stat-item"><span>No games played yet!</span></div>';
+            }
+            el.statsContainer.innerHTML = html;
+            el.statsScreen.classList.remove('hidden');
+        }
+        
+        function showScoreboardScreen() {
+            hideAllScreens();
+            const scores = getTopScores();
+            let html = '<div class="score-row header"><span>RANK</span><span>NAME</span><span>SCORE</span></div>';
+            if (scores.length === 0) {
+                html += '<div class="score-row"><span colspan="3">No scores yet!</span></div>';
+            } else {
+                scores.forEach((s, i) => {
+                    const isCurrent = s.name === gameState.currentUser;
+                    html += `<div class="score-row ${isCurrent ? 'current-user' : ''}">
+                        <span>#${i + 1}</span><span>${s.name}</span><span>${s.score}</span>
+                    </div>`;
+                });
+            }
+            el.scoreboardList.innerHTML = html;
+            el.scoreboardScreen.classList.remove('hidden');
+        }
+        
+        function login() {
+            const name = el.usernameInput.value.trim();
+            if (name.length < 1) {
+                el.usernameInput.style.borderColor = 'var(--neon-orange)';
+                return;
+            }
+            gameState.currentUser = name;
+            if (!gameData.players[name]) {
+                gameData.players[name] = { gamesPlayed: 0, bestScore: 0, history: [] };
+            }
+            saveData();
+            showTitleScreen();
+        }
+        
+        // Event Listeners
+        function setupEventListeners() {
+            // Login
+            el.loginBtn.addEventListener('click', login);
+            el.usernameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') login(); });
+            el.viewScoresBtn.addEventListener('click', () => {
+                gameState.currentUser = null;
+                showScoreboardScreen();
+            });
+            el.importBtn.addEventListener('click', () => el.importFile.click());
+            el.importFile.addEventListener('change', (e) => {
+                if (e.target.files[0]) importData(e.target.files[0]);
+            });
+            
+            // Title
+            el.startBtn.addEventListener('click', startGame);
+            el.statsBtn.addEventListener('click', showStatsScreen);
+            el.scoresBtn.addEventListener('click', showScoreboardScreen);
+            el.exportBtn.addEventListener('click', exportData);
+            el.changeUserBtn.addEventListener('click', showLoginScreen);
+            
+            // Stats/Scoreboard back
+            el.statsBackBtn.addEventListener('click', showTitleScreen);
+            el.scoreboardBackBtn.addEventListener('click', () => {
+                if (gameState.currentUser) showTitleScreen();
+                else showLoginScreen();
+            });
+            
+            // Game controls
+            el.pauseBtn.addEventListener('click', pauseGame);
+            el.resumeBtn.addEventListener('click', resumeGame);
+            el.quitBtn.addEventListener('click', quitGame);
+            el.musicToggle.addEventListener('click', toggleMusic);
+            el.speakBtn.addEventListener('click', (e) => { e.stopPropagation(); speakItem(gameState.targetItem); });
+            
+            // Challenge modal
+            el.returnBtn.addEventListener('click', handleReturn);
+            el.doubleDownBtn.addEventListener('click', handleDoubleDown);
+            el.challengeContinueBtn.addEventListener('click', closeChallenge);
+            
+            // Dictation mode
+            el.dictationSubmitBtn.addEventListener('click', checkDictationAnswer);
+            el.dictationInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkDictationAnswer();
+            });
+            el.beatsMeBtn.addEventListener('click', handleBeatsMe);
+            
+            // Level complete / Game over
+            el.continueBtn.addEventListener('click', nextLevel);
+            el.playAgainBtn.addEventListener('click', startGame);
+            el.winMenuBtn.addEventListener('click', showTitleScreen);
+            el.retryBtn.addEventListener('click', startGame);
+            el.gameOverMenuBtn.addEventListener('click', showTitleScreen);
+            
+            // Game input
+            el.gameContainer.addEventListener('mousemove', (e) => {
+                if (gameState.isPlaying && !gameState.isPaused && !gameState.isDictationMode) moveShip(e.clientX);
+            });
+            
+            el.gameContainer.addEventListener('touchmove', (e) => {
+                if (gameState.isPlaying && !gameState.isPaused && !gameState.isDictationMode) {
+                    e.preventDefault();
+                    moveShip(e.touches[0].clientX);
+                }
+            }, { passive: false });
+            
+            el.gameContainer.addEventListener('click', (e) => {
+                if (gameState.isPlaying && !gameState.isPaused && !gameState.isDictationMode &&
+                    !e.target.closest('button') && !e.target.closest('.screen')) {
+                    shoot();
+                }
+            });
+            
+            el.gameContainer.addEventListener('touchstart', (e) => {
+                if (gameState.isPlaying && !gameState.isPaused && !gameState.isDictationMode &&
+                    !e.target.closest('button') && !e.target.closest('.screen')) {
+                    e.preventDefault();
+                    moveShip(e.touches[0].clientX);
+                    shoot();
+                }
+            }, { passive: false });
+            
+            // Keyboard
+            document.addEventListener('keydown', (e) => {
+                const isTyping = document.activeElement.tagName === 'INPUT';
+                
+                if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+                    if (gameState.isPlaying && !gameState.isPaused && !gameState.isDictationMode) pauseGame();
+                    else if (gameState.isPaused) resumeGame();
+                }
+                if ((e.key === ' ' || e.key === 'ArrowUp') && !isTyping && !gameState.isDictationMode) {
+                    e.preventDefault();
+                    shoot();
+                }
+                if (e.key === 'ArrowLeft' && !isTyping) {
+                    moveShip(gameState.shipX - 25 + el.gameContainer.getBoundingClientRect().left);
+                }
+                if (e.key === 'ArrowRight' && !isTyping) {
+                    moveShip(gameState.shipX + 25 + el.gameContainer.getBoundingClientRect().left);
+                }
+            });
+        }
+        
+        // Start
+        init();
+    </script>
+</body>
+</html>
